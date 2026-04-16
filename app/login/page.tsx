@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,17 +20,18 @@ export default function LoginPagina() {
     setLaden(true);
     setFout("");
 
-    const resultaat = await signIn("credentials", {
-      username: gebruikersnaam,
-      password: wachtwoord,
-      redirect: false,
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: gebruikersnaam, password: wachtwoord }),
     });
 
-    if (resultaat?.error) {
-      setFout("Onjuiste gebruikersnaam of wachtwoord");
-      setLaden(false);
-    } else {
+    if (res.ok) {
       router.push("/dashboard");
+    } else {
+      const data = await res.json();
+      setFout(data.error ?? "Inloggen mislukt");
+      setLaden(false);
     }
   }
 
@@ -71,9 +71,7 @@ export default function LoginPagina() {
                 required
               />
             </div>
-            {fout && (
-              <p className="text-sm text-destructive">{fout}</p>
-            )}
+            {fout && <p className="text-sm text-destructive">{fout}</p>}
             <Button type="submit" className="w-full" disabled={laden}>
               {laden ? "Inloggen..." : "Inloggen"}
             </Button>

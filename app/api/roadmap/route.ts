@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { z } from "zod";
 
 const roadmapSchema = z.object({
@@ -14,7 +14,7 @@ const roadmapSchema = z.object({
 });
 
 export async function GET() {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const items = await prisma.roadmapItem.findMany({
@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const body = await request.json();
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const body = await request.json();
@@ -54,7 +54,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);

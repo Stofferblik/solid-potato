@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { z } from "zod";
 
 const itemSchema = z.object({
@@ -13,7 +13,7 @@ const itemUpdateSchema = z.object({
 });
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const { id: sprintId } = await params;
@@ -37,7 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const { id: sprintId } = await params;
@@ -53,7 +53,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const { id: sprintId } = await params;

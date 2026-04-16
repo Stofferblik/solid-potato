@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/nav/Sidebar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const sessie = await auth();
+  const sessie = await getSession();
   if (!sessie) redirect("/login");
 
   return (

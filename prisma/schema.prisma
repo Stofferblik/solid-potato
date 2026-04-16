@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  naam         String
+  visie        String?
+  beschrijving String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  epics        Epic[]
+  okrs         OKR[]
+  roadmapItems RoadmapItem[]
+}
+
+model Epic {
+  id           String        @id @default(cuid())
+  titel        String
+  beschrijving String?
+  status       String        @default("open")
+  kleur        String        @default("#6366f1")
+  volgorde     Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String
+  stories      UserStory[]
+  roadmapItems RoadmapItem[]
+}
+
+model UserStory {
+  id                 String       @id @default(cuid())
+  titel              String
+  beschrijving       String?
+  acceptatiecriteria String?
+  prioriteit         String       @default("should")
+  punten             Int?
+  status             String       @default("backlog")
+  volgorde           Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  epic               Epic?        @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  epicId             String?
+  sprintItems        SprintItem[]
+}
+
+model Sprint {
+  id         String       @id @default(cuid())
+  naam       String
+  doel       String?
+  startDatum DateTime
+  eindDatum  DateTime
+  status     String       @default("gepland")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  items      SprintItem[]
+}
+
+model SprintItem {
+  id       String    @id @default(cuid())
+  volgorde Int       @default(0)
+  status   String    @default("todo")
+  sprint   Sprint    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId String
+  story    UserStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId  String
+
+  @@unique([sprintId, storyId])
+}
+
+model Stakeholder {
+  id          String   @id @default(cuid())
+  naam        String
+  rol         String?
+  organisatie String?
+  email       String?
+  telefoon    String?
+  invloed     Int      @default(3)
+  belang      Int      @default(3)
+  notities    String?
+  categorie   String   @default("gebruiker")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model OKR {
+  id         String      @id @default(cuid())
+  objective  String
+  kwartaal   Int
+  jaar       Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  keyResults KeyResult[]
+}
+
+model KeyResult {
+  id           String   @id @default(cuid())
+  beschrijving String
+  target       String
+  huidig       String   @default("0")
+  eenheid      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  okr          OKR      @relation(fields: [okrId], references: [id], onDelete: Cascade)
+  okrId        String
+}
+
+model RoadmapItem {
+  id           String   @id @default(cuid())
+  titel        String
+  beschrijving String?
+  kwartaal     Int
+  jaar         Int
+  status       String   @default("gepland")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String
+  epic         Epic?    @relation(fields: [epicId], references: [id], onDelete: SetNull)
+  epicId       String?
+}
